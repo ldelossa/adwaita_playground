@@ -1,24 +1,20 @@
-#include <adwaita.h>
+#include <gtk/gtk.h>
 
 static void panel_on_monitor_change(GListModel *monitors, guint position,
                                     guint removed, guint added,
                                     gpointer gtk_app) {
     uint8_t n = g_list_model_get_n_items(monitors);
-    const char *desc = NULL;
-    const char *model = NULL;
-    const char *connector = NULL;
-    const char *manufacturer = NULL;
 
-    for (uint8_t i = 0; i < n; i++) {
-        GdkMonitor *mon = g_list_model_get_item(monitors, i);
-        desc = gdk_monitor_get_description(mon);
-        model = gdk_monitor_get_model(mon);
-        connector = gdk_monitor_get_connector(mon);
-        manufacturer = gdk_monitor_get_manufacturer(mon);
-        g_critical(
-            "panel.c:panel_on_monitor_change(): bar already exists for "
-            "monitor [%s] [%s] [%s] [%s]",
-            desc, model, connector, manufacturer);
+    g_debug(
+        "panel.c:panel_on_monitor_change(): received monitor change event.");
+    g_debug("panel.c:panel_on_monitor_change(): new number of monitors %d", n);
+
+    if (added > 0) {
+        g_debug("added position [%d]", position);
+    }
+
+    if (removed > 0) {
+        g_debug("removed position [%d]", position);
     }
 }
 
@@ -34,8 +30,6 @@ static void activate(GtkApplication *app, gpointer user_data) {
     GdkDisplay *display = gdk_seat_get_display(seat);
     GListModel *monitors = gdk_display_get_monitors(display);
 
-    panel_on_monitor_change(monitors, 0, 0, 0, app);
-
     g_signal_connect(monitors, "items-changed",
                      G_CALLBACK(panel_on_monitor_change), app);
 }
@@ -43,6 +37,8 @@ static void activate(GtkApplication *app, gpointer user_data) {
 int main(int argc, char **argv) {
     GtkApplication *app;
     int status;
+
+    g_setenv("G_MESSAGES_DEBUG", "all", TRUE);
 
     app = gtk_application_new("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);

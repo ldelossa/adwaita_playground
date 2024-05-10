@@ -1,6 +1,6 @@
 CC := gcc
-CFLAGS := $(shell pkg-config --cflags libadwaita-1) -g3 -Wall
-LIBS := $(shell pkg-config --libs libadwaita-1)
+CFLAGS := $(shell pkg-config --cflags gtk4) -g3 -Wall
+LIBS := $(shell pkg-config --libs gtk4)
 SOURCES := $(shell find src/ -type f -name *.c)
 
 main: main.c
